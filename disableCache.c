@@ -7,9 +7,16 @@ static int disableCache_init(void)
 {
 #ifdef __x86_64__
 	u64 cr0;
-	printk(KERN_ALERT "Cache disabling for x86_64 not ready yet...\n");
-	// TODO: disable cache for x86_64
-	
+	printk(KERN_ALERT "Disabling caches for x86_64...\n");
+	// disable cache
+	__asm__(
+		".intel_syntax noprefix\n\t"
+		"mov	rax, cr0\n\t"
+		"or	rax, (1 << 30)\n\t"
+		"mov	cr0, rax\n\t"
+		"wbinvd\n\t"
+		".att_syntax noprefix\n\t"
+	: : : "rax" );
 	// print value of CR0
 	__asm__ __volatile__ (
 		"mov	%%cr0, %%rax\n\t"
@@ -20,12 +27,13 @@ static int disableCache_init(void)
 	);
 #elif defined(__i386__)
 	u32 cr0;
-	printk(KERN_ALERT "Disabling caches...\n");
+	printk(KERN_ALERT "Disabling caches for x86_32...\n");
 	// disable cache
-	__asm__(".intel_syntax noprefix\n\t"
-		"mov 	eax, cr0\n\t"
-		"or	eax,(1 << 30)\n\t"
-		"mov	cr0,eax\n\t"
+	__asm__(
+		".intel_syntax noprefix\n\t"
+		"mov	eax, cr0\n\t"
+		"or	eax, (1 << 30)\n\t"
+		"mov	cr0, eax\n\t"
 		"wbinvd\n\t"
 		".att_syntax noprefix\n\t"
 	: : : "eax" );
@@ -46,9 +54,16 @@ static void disableCache_exit(void)
 {
 #ifdef __x86_64__
 	u64 cr0;
-	printk(KERN_ALERT "Cache enabling for x86_64 not ready yet...\n");
-	// TODO: enable cache for x86_64
-	
+	printk(KERN_ALERT "Enabling caches for x86_64...\n");
+	// enable cache
+	__asm__(
+		".intel_syntax noprefix\n\t"
+		"mov	rax, cr0\n\t"
+		"and	rax, ~(1 << 30)\n\t"
+		"mov	cr0, rax\n\t"
+		"wbinvd\n\t"
+		".att_syntax noprefix\n\t"
+	: : : "rax" );
 	// print value of CR0
 	__asm__ __volatile__ (
 		"mov	%%cr0, %%rax\n\t"
@@ -59,12 +74,13 @@ static void disableCache_exit(void)
 	);
 #elif defined(__i386__)
 	u32 cr0;
-	printk(KERN_ALERT "Enabling caches...\n");
+	printk(KERN_ALERT "Enabling caches for x86_32...\n");
 	// enable cache
-	__asm__(".intel_syntax noprefix\n\t"
-		"mov	eax,cr0\n\t"
-		"and	eax,~(1 << 30)\n\t"
-		"mov	cr0,eax\n\t"
+	__asm__(
+		".intel_syntax noprefix\n\t"
+		"mov	eax, cr0\n\t"
+		"and	eax, ~(1 << 30)\n\t"
+		"mov	cr0, eax\n\t"
 		"wbinvd\n\t"
 		".att_syntax noprefix\n\t"
 	: : : "eax" );
