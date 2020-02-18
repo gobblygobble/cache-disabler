@@ -1,4 +1,4 @@
-EXTRA_CFLAGS = -m32
+#EXTRA_CFLAGS = -m32
 obj-m += disableCache.o
 
 all:
